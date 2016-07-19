@@ -6,47 +6,36 @@
 # major Java projects test and recommend Oracle Java for production for optimal
 # performance.
 
-FROM netflixoss/java:8
+FROM alpine:3.4
+
+RUN apk --no-cache add bash openjdk7-jre
 
 # The Scala 2.11 build is currently recommended by the project.
 ENV KAFKA_VERSION=0.10.0.0 KAFKA_SCALA_VERSION=2.11 JMX_PORT=7203
 ENV KAFKA_RELEASE_ARCHIVE kafka_${KAFKA_SCALA_VERSION}-${KAFKA_VERSION}.tgz
 
-RUN mkdir /kafka /data /logs
-
-RUN apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    ca-certificates
+RUN mkdir /kafka /kafka/data /kafka/logs
 
 # Download Kafka binary distribution
-ADD http://www.us.apache.org/dist/kafka/${KAFKA_VERSION}/${KAFKA_RELEASE_ARCHIVE} /tmp/
-ADD https://dist.apache.org/repos/dist/release/kafka/${KAFKA_VERSION}/${KAFKA_RELEASE_ARCHIVE}.md5 /tmp/
+RUN apk --no-cache add curl && \
+  curl -sS http://www.us.apache.org/dist/kafka/${KAFKA_VERSION}/${KAFKA_RELEASE_ARCHIVE} | \
+  tar -zxf - -C /kafka && \
+  mv /kafka/kafka_* /kafka/dist && \
+  apk --no-cache del curl
 
-WORKDIR /tmp
-
-# Check artifact digest integrity
-RUN echo VERIFY CHECKSUM: && \
-  gpg --print-md MD5 ${KAFKA_RELEASE_ARCHIVE} 2>/dev/null && \
-  cat ${KAFKA_RELEASE_ARCHIVE}.md5
-
-# Install Kafka to /kafka
-RUN tar -zx -C /kafka --strip-components=1 -f ${KAFKA_RELEASE_ARCHIVE} && \
-  rm -rf kafka_*
-
-ADD config /kafka/config
+ADD config /kafka/dist/config
 ADD start.sh /start.sh
 
 # Set up a user to run Kafka
-RUN groupadd kafka && \
-  useradd -d /kafka -g kafka -s /bin/false kafka && \
-  chown -R kafka:kafka /kafka /data /logs
+RUN addgroup kafka && \
+  adduser -h /kafka -s /sbin/nologin -G kafka kafka -S -D -H && \
+  chown -R kafka:kafka /kafka
 USER kafka
-ENV PATH /kafka/bin:$PATH
-WORKDIR /kafka
+ENV PATH /kafka/dist/bin:$PATH
+WORKDIR /kafka/dist
 
 # broker, jmx
 EXPOSE 9092 ${JMX_PORT}
-VOLUME [ "/data", "/logs" ]
+VOLUME [ "/kafka/data", "/kafka/logs" ]
 
 CMD ["/start.sh"]
-
