@@ -47,4 +47,6 @@ if [ -z $KAFKA_JMX_OPTS ]; then
 fi
 
 echo "Starting kafka"
+
+export KAFKA_OPTS="$KAFKA_OPTS -javaagent:/kafka/dist/jmx_prometheus_javaagent-0.9.jar=7071:/kafka/dist/config/kafka.yml"
 exec bin/kafka-server-start.sh config/server.properties

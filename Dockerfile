@@ -24,6 +24,9 @@ RUN apk --no-cache add curl && \
   apk --no-cache del curl
 
 ADD config /kafka/dist/config
+ADD jmx_prometheus_javaagent-0.9.jar /kafka/dist
+ADD kafka.yml /kafka/dist/config
+
 ADD start.sh /start.sh
 
 # Set up a user to run Kafka
