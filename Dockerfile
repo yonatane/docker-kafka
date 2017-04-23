@@ -2,6 +2,7 @@ FROM openjdk:8u121-jre-alpine
 
 ENV KAFKA_VERSION=0.10.2.0 KAFKA_SCALA_VERSION=2.11 JMX_PORT=7203
 ENV KAFKA_RELEASE_ARCHIVE kafka_${KAFKA_SCALA_VERSION}-${KAFKA_VERSION}.tgz
+ENV LOG_DIR /kafka/logs
 
 # Download Kafka binary distribution
 RUN mkdir /kafka /kafka/data /kafka/logs && \
