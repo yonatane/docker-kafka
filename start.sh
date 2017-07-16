@@ -10,6 +10,7 @@ cat config/server.properties.template | sed \
   -e "s|{{KAFKA_DELETE_TOPIC_ENABLE}}|${KAFKA_DELETE_TOPIC_ENABLE:-false}|g" \
   -e "s|{{ZOOKEEPER_CONNECTION_TIMEOUT_MS}}|${ZOOKEEPER_CONNECTION_TIMEOUT_MS:-6000}|g" \
    > config/server.properties
+echo "${KAFKA_APPENDED_SERVER_PROPERTIES}" >> config/server.properties
 
 # Kafka's built-in start scripts set the first three system properties here, but
 # we add two more to make remote JMX easier/possible to access in a Docker
