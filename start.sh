@@ -2,6 +2,10 @@
 
 IP=$(grep "\s${HOSTNAME}$" /etc/hosts | head -n 1 | awk '{print $1}')
 
+if [ "${STATEFULSET_KAFKA_BROKER_ID}" = true ] ; then
+    KAFKA_BROKER_ID="${HOSTNAME##*-}"
+fi
+
 cat config/server.properties.template | sed \
   -e "s|{{ZOOKEEPER_CONNECTION_STRING}}|${ZOOKEEPER_CONNECTION_STRING}|g" \
   -e "s|{{KAFKA_BROKER_ID}}|${KAFKA_BROKER_ID:-0}|g" \
