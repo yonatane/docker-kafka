@@ -1,5 +1,4 @@
 .git
 .gitignore
-CHANGELOG.md
+.idea
 README.md
-config/server.properties
